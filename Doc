@@ -1,0 +1,7 @@
+/WebTools
+│── /static
+│   ├── script.js  (JavaScript obsługujący aplikację)
+│── /templates
+│   ├── index.html  (Główna strona aplikacji)
+│── app.py  (Backend w Flask)
+│── base/todo_list.json  (Plik z danymi)
