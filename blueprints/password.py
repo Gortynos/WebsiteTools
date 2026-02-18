@@ -50,17 +50,46 @@ def format_duration(seconds):
     except (TypeError, ValueError):
         return t("password_strength.unknown")
 
+    lang = get_language()
+
+    def plural_pl(number, forms):
+        if number == 1:
+            return forms[0]
+        if number % 10 in {2, 3, 4} and number % 100 not in {12, 13, 14}:
+            return forms[1]
+        return forms[2]
+
     if value < 1:
-        return "< 1s"
+        return "< 1 sekunda" if lang == "pl" else "< 1 second"
+
     if value < 60:
-        return f"{int(value)}s"
+        amount = int(value)
+        if lang == "pl":
+            return f"{amount} {plural_pl(amount, ('sekunda', 'sekundy', 'sekund'))}"
+        return f"{amount} second" if amount == 1 else f"{amount} seconds"
+
     if value < 3600:
-        return f"{int(value // 60)}m"
+        amount = int(value // 60)
+        if lang == "pl":
+            return f"{amount} {plural_pl(amount, ('minuta', 'minuty', 'minut'))}"
+        return f"{amount} minute" if amount == 1 else f"{amount} minutes"
+
     if value < 86400:
-        return f"{int(value // 3600)}h"
+        amount = int(value // 3600)
+        if lang == "pl":
+            return f"{amount} {plural_pl(amount, ('godzina', 'godziny', 'godzin'))}"
+        return f"{amount} hour" if amount == 1 else f"{amount} hours"
+
     if value < 31536000:
-        return f"{int(value // 86400)}d"
-    return f"{int(value // 31536000)}y"
+        amount = int(value // 86400)
+        if lang == "pl":
+            return f"{amount} {plural_pl(amount, ('dzień', 'dni', 'dni'))}"
+        return f"{amount} day" if amount == 1 else f"{amount} days"
+
+    amount = int(value // 31536000)
+    if lang == "pl":
+        return f"{amount} {plural_pl(amount, ('rok', 'lata', 'lat'))}"
+    return f"{amount} year" if amount == 1 else f"{amount} years"
 
 
 def translate_feedback_text(text):
@@ -94,6 +123,51 @@ def translate_feedback_text(text):
         "Predictable substitutions like '@' instead of 'a' don't help very much.": "Przewidywalne zamiany, np. '@' zamiast 'a', niewiele pomagają.",
     }
     return translations.get(text, text)
+
+
+def build_crack_time_scenarios(crack_seconds):
+    scenarios = [
+        {
+            "key": "online_throttled",
+            "seconds": crack_seconds.get("online_throttling_100_per_hour"),
+            "label": t("password_strength.scenario.online_throttled.label"),
+            "description": t("password_strength.scenario.online_throttled.description"),
+        },
+        {
+            "key": "online_unthrottled",
+            "seconds": crack_seconds.get("online_no_throttling_10_per_second"),
+            "label": t("password_strength.scenario.online_unthrottled.label"),
+            "description": t("password_strength.scenario.online_unthrottled.description"),
+        },
+        {
+            "key": "offline_slow_hashing",
+            "seconds": crack_seconds.get("offline_slow_hashing_1e4_per_second"),
+            "label": t("password_strength.scenario.offline_slow_hashing.label"),
+            "description": t("password_strength.scenario.offline_slow_hashing.description"),
+        },
+        {
+            "key": "offline_fast_hashing",
+            "seconds": crack_seconds.get("offline_fast_hashing_1e10_per_second"),
+            "label": t("password_strength.scenario.offline_fast_hashing.label"),
+            "description": t("password_strength.scenario.offline_fast_hashing.description"),
+        },
+    ]
+    recommended_key = "online_throttled"
+
+    return {
+        "recommended_key": recommended_key,
+        "recommended_note": t("password_strength.recommended_note"),
+        "scenarios": [
+            {
+                "key": item["key"],
+                "label": item["label"],
+                "description": item["description"],
+                "time": format_duration(item["seconds"]),
+                "is_recommended": item["key"] == recommended_key,
+            }
+            for item in scenarios
+        ],
+    }
 
 
 @password_bp.route("/api/generate_password", methods=["POST"])
@@ -130,16 +204,7 @@ def password_strength_api():
         "score": score,
         "score_label": t(f"password_strength.score_{score}"),
         "guesses_log10": analysis.get("guesses_log10"),
-        "crack_time": {
-            "slow_hashing_label": t("password_strength.slow_hashing_label"),
-            "slow_hashing": format_duration(
-                crack_seconds.get("offline_slow_hashing_1e4_per_second")
-            ),
-            "fast_hashing_label": t("password_strength.fast_hashing_label"),
-            "fast_hashing": format_duration(
-                crack_seconds.get("offline_fast_hashing_1e10_per_second")
-            ),
-        },
+        "crack_time": build_crack_time_scenarios(crack_seconds),
         "feedback": {
             "warning": translate_feedback_text(feedback.get("warning") or ""),
             "suggestions": [translate_feedback_text(item) for item in (feedback.get("suggestions") or [])],
