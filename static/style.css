@@ -51,3 +51,34 @@ li {
     min-width: 52px;
     margin: 0;
 }
+
+.diff-result {
+    white-space: pre-wrap;
+    text-align: left;
+    width: 90%;
+    max-width: 1000px;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+    padding: 12px;
+}
+
+.diff-line {
+    padding: 6px 8px;
+    border-radius: 4px;
+    margin: 4px 0;
+}
+
+.diff-line-removed {
+    background: #ffd7d7;
+}
+
+.diff-line-added {
+    background: #d9f8d9;
+}
+
+.diff-group {
+    border: 1px dashed #c7c7c7;
+    border-radius: 6px;
+    padding: 6px;
+    margin: 8px 0;
+}

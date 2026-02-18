@@ -34,12 +34,14 @@ def create_app():
     from blueprints.pages import pages_bp
     from blueprints.password import password_bp
     from blueprints.pdf import pdf_bp
+    from blueprints.text_diff import text_diff_bp
     from blueprints.todo import todo_bp
 
     app.register_blueprint(pages_bp)
     app.register_blueprint(todo_bp)
     app.register_blueprint(password_bp)
     app.register_blueprint(pdf_bp)
+    app.register_blueprint(text_diff_bp)
     return app
 
 

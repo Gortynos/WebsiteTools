@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="text_diff.title">Porównanie tekstów (A/B)</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='i18n.js') }}"></script>
+</head>
+<body>
+    <h1 data-i18n="text_diff.h1">Porównanie tekstów (A/B)</h1>
+
+    <h3 data-i18n="text_diff.input_a">Tekst A</h3>
+    <textarea id="textA" rows="10" style="width: 90%; max-width: 1000px;"></textarea>
+
+    <h3 data-i18n="text_diff.input_b">Tekst B</h3>
+    <textarea id="textB" rows="10" style="width: 90%; max-width: 1000px;"></textarea>
+    <br>
+    <label>
+        <input type="checkbox" id="ignoreWhitespace">
+        <span data-i18n="text_diff.ignore_whitespace">Ignoruj białe znaki</span>
+    </label>
+    <label style="margin-left: 16px;">
+        <input type="checkbox" id="ignoreCase">
+        <span data-i18n="text_diff.ignore_case">Ignoruj wielkość liter</span>
+    </label>
+    <label style="margin-left: 16px;">
+        <input type="checkbox" id="pairGroups" checked>
+        <span data-i18n="text_diff.pair_groups">Grupuj różnice parami</span>
+    </label>
+    <label style="margin-left: 16px;">
+        <span data-i18n="text_diff.compare_mode_label">Tryb porównania:</span>
+        <select id="compareMode">
+            <option value="line" data-i18n="text_diff.compare_mode_line">Linie</option>
+            <option value="word" data-i18n="text_diff.compare_mode_word" selected>Wyrazy</option>
+            <option value="char" data-i18n="text_diff.compare_mode_char">Znaki</option>
+        </select>
+    </label>
+    <br>
+    <button data-i18n="text_diff.compare_button" onclick="compareText()">Porównaj</button>
+
+    <h3 data-i18n="text_diff.summary_title">Podsumowanie</h3>
+    <p id="similarityResult">-</p>
+    <p id="addedResult">-</p>
+    <p id="removedResult">-</p>
+
+    <h3 data-i18n="text_diff.diff_title">Różnice</h3>
+    <div id="diffResult" class="diff-result">-</div>
+
+    <button data-i18n="common.back" onclick="window.location.href='/'">Powrót</button>
+
+    <script>
+        function groupDiffEntries(entries) {
+            const groups = [];
+            let i = 0;
+
+            while (i < entries.length) {
+                const group = { missing: [], added: [] };
+
+                while (i < entries.length && entries[i].type === "missing") {
+                    group.missing.push(entries[i]);
+                    i++;
+                }
+                while (i < entries.length && entries[i].type === "added") {
+                    group.added.push(entries[i]);
+                    i++;
+                }
+
+                if (group.missing.length === 0 && group.added.length === 0) {
+                    group.added.push(entries[i]);
+                    i++;
+                }
+
+                groups.push(group);
+            }
+
+            return groups;
+        }
+
+        function renderEntry(diffResult, entry) {
+            const line = document.createElement("div");
+            const isAdded = entry.type === "added";
+            line.className = `diff-line ${isAdded ? "diff-line-added" : "diff-line-removed"}`;
+            line.textContent = `${I18n.t(isAdded ? "text_diff.added_prefix" : "text_diff.missing_prefix")}: ${entry.text}`;
+            diffResult.appendChild(line);
+        }
+
+        function renderGrouped(diffResult, entries) {
+            const groups = groupDiffEntries(entries);
+            groups.forEach((group) => {
+                const box = document.createElement("div");
+                box.className = "diff-group";
+
+                group.missing.forEach((entry) => {
+                    const line = document.createElement("div");
+                    line.className = "diff-line diff-line-removed";
+                    line.textContent = `${I18n.t("text_diff.missing_prefix")}: ${entry.text}`;
+                    box.appendChild(line);
+                });
+
+                group.added.forEach((entry) => {
+                    const line = document.createElement("div");
+                    line.className = "diff-line diff-line-added";
+                    line.textContent = `${I18n.t("text_diff.added_prefix")}: ${entry.text}`;
+                    box.appendChild(line);
+                });
+
+                diffResult.appendChild(box);
+            });
+        }
+
+        async function compareText() {
+            const textA = document.getElementById("textA").value;
+            const textB = document.getElementById("textB").value;
+            const ignoreWhitespace = document.getElementById("ignoreWhitespace").checked;
+            const ignoreCase = document.getElementById("ignoreCase").checked;
+            const pairGroups = document.getElementById("pairGroups").checked;
+            const compareMode = document.getElementById("compareMode").value;
+
+            const response = await I18n.apiFetch("/api/text_diff", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    text_a: textA,
+                    text_b: textB,
+                    ignore_whitespace: ignoreWhitespace,
+                    ignore_case: ignoreCase,
+                    compare_mode: compareMode,
+                }),
+            });
+
+            const data = await response.json();
+            const similarityResult = document.getElementById("similarityResult");
+            const addedResult = document.getElementById("addedResult");
+            const removedResult = document.getElementById("removedResult");
+            const diffResult = document.getElementById("diffResult");
+
+            if (!response.ok) {
+                similarityResult.textContent = `${I18n.t("text_diff.error_prefix")} ${data.error || I18n.t("text_diff.unknown_error")}`;
+                addedResult.textContent = "-";
+                removedResult.textContent = "-";
+                diffResult.textContent = "-";
+                return;
+            }
+
+            similarityResult.textContent = `${I18n.t("text_diff.similarity")}: ${data.stats.similarity_percent}%`;
+            addedResult.textContent = `${I18n.t("text_diff.added_items")}: ${data.stats.added_count}`;
+            removedResult.textContent = `${I18n.t("text_diff.missing_items")}: ${data.stats.missing_count}`;
+            diffResult.innerHTML = "";
+
+            if (data.diff_entries && data.diff_entries.length > 0) {
+                if (pairGroups) {
+                    renderGrouped(diffResult, data.diff_entries);
+                } else {
+                    data.diff_entries.forEach((entry) => renderEntry(diffResult, entry));
+                }
+            } else {
+                diffResult.textContent = data.diff_text || "-";
+            }
+        }
+    </script>
+</body>
+</html>

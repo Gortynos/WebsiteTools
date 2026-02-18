@@ -36,3 +36,9 @@ def split_pdf_page():
 @pages_bp.route("/extract-pdf-text/")
 def extract_pdf_text_page():
     return render_template("extract_pdf_text.html")
+
+
+@pages_bp.route("/text-diff")
+@pages_bp.route("/text-diff/")
+def text_diff_page():
+    return render_template("text_diff.html")
