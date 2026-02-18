@@ -6,11 +6,31 @@ const TRANSLATIONS = {
         "home.h1": "Witaj w moich aplikacjach!",
         "home.subtitle": "Wybierz aplikację, którą chcesz uruchomić:",
         "home.todo": "Lista zadań",
+        "home.todo_desc": "Prosty manager zadań z zapisem lokalnym.",
         "home.password": "Generator haseł",
+        "home.password_desc": "Generowanie losowych haseł z wybranymi regułami.",
         "home.password_strength": "Ocena siły hasła",
+        "home.password_strength_desc": "Ocena bezpieczeństwa hasła i scenariusze łamania.",
         "home.pdf": "Podziel/Scal PDF",
+        "home.pdf_desc": "Dzielenie PDF na strony oraz scalanie plików.",
         "home.pdf_extract": "Wyciąganie tekstu z PDF",
+        "home.pdf_extract_desc": "Ekstrakcja treści z PDF do tekstu lub JSON.",
         "home.text_diff": "Porównanie tekstów (A/B)",
+        "home.text_diff_desc": "Czytelne porównanie różnic między dwiema wersjami tekstu.",
+        "home.view_label": "Widok",
+        "home.view_cards": "Kafelki",
+        "home.view_list": "Lista",
+        "appearance.title": "Motyw",
+        "appearance.preset_slate": "Niebiesko-szary",
+        "appearance.preset_sand": "Beżowo-błękitny",
+        "appearance.preset_cyan": "Cyjan nocny",
+        "menu.home": "Start",
+        "menu.todo": "Lista zadań",
+        "menu.password": "Generator haseł",
+        "menu.password_strength": "Ocena siły hasła",
+        "menu.pdf": "Podziel/Scal PDF",
+        "menu.pdf_extract": "Tekst z PDF",
+        "menu.text_diff": "Porównanie tekstów",
         "todo.title": "Lista zadań",
         "todo.h1": "Lista zadań",
         "todo.placeholder": "Wpisz zadanie",
@@ -91,11 +111,31 @@ const TRANSLATIONS = {
         "home.h1": "Welcome to my applications!",
         "home.subtitle": "Choose an application to run:",
         "home.todo": "To-Do List",
+        "home.todo_desc": "Simple task manager with local persistence.",
         "home.password": "Password Generator",
+        "home.password_desc": "Generate random passwords with selected rules.",
         "home.password_strength": "Password Strength Checker",
+        "home.password_strength_desc": "Evaluate password security and crack-time scenarios.",
         "home.pdf": "Split/Merge PDF",
+        "home.pdf_desc": "Split PDF pages and merge multiple files.",
         "home.pdf_extract": "PDF Text Extract",
+        "home.pdf_extract_desc": "Extract PDF content to plain text or JSON.",
         "home.text_diff": "Text Comparison (A/B)",
+        "home.text_diff_desc": "Readable comparison between two text versions.",
+        "home.view_label": "View",
+        "home.view_cards": "Cards",
+        "home.view_list": "List",
+        "appearance.title": "Theme",
+        "appearance.preset_slate": "Blue-gray",
+        "appearance.preset_sand": "Beige-blue",
+        "appearance.preset_cyan": "Cyan night",
+        "menu.home": "Home",
+        "menu.todo": "To-Do",
+        "menu.password": "Generator",
+        "menu.password_strength": "Strength",
+        "menu.pdf": "PDF Split/Merge",
+        "menu.pdf_extract": "PDF Text",
+        "menu.text_diff": "Text Compare",
         "todo.title": "To-Do List",
         "todo.h1": "To-Do List",
         "todo.placeholder": "Enter a task",
@@ -238,7 +278,79 @@ function createLanguageToggle() {
     button.addEventListener("click", toggleLanguage);
     wrapper.appendChild(button);
 
-    document.body.appendChild(wrapper);
+    const host = document.getElementById("topMenuRight") || document.body;
+    host.appendChild(wrapper);
+}
+
+function createTopMenu() {
+    if (document.getElementById("topMenu")) {
+        return;
+    }
+
+    const nav = document.createElement("nav");
+    nav.id = "topMenu";
+    nav.className = "top-menu";
+
+    const brand = document.createElement("a");
+    brand.className = "top-menu-brand";
+    brand.href = "/";
+    brand.textContent = "WebsiteTools";
+    nav.appendChild(brand);
+
+    const links = document.createElement("div");
+    links.className = "top-menu-links";
+    const items = [
+        { href: "/", key: "menu.home" },
+        { href: "/todo", key: "menu.todo" },
+        { href: "/password", key: "menu.password" },
+        { href: "/password-strength", key: "menu.password_strength" },
+        { href: "/split-pdf", key: "menu.pdf" },
+        { href: "/extract-pdf-text", key: "menu.pdf_extract" },
+        { href: "/text-diff", key: "menu.text_diff" },
+    ];
+
+    const currentPath = window.location.pathname.replace(/\/$/, "") || "/";
+    items.forEach((item) => {
+        const link = document.createElement("a");
+        link.href = item.href;
+        link.setAttribute("data-i18n", item.key);
+        link.textContent = t(item.key);
+        const normalized = item.href.replace(/\/$/, "") || "/";
+        if (normalized === currentPath) {
+            link.classList.add("active");
+        }
+        links.appendChild(link);
+    });
+    nav.appendChild(links);
+
+    const right = document.createElement("div");
+    right.id = "topMenuRight";
+    right.className = "top-menu-right";
+    nav.appendChild(right);
+
+    document.body.prepend(nav);
+}
+
+function applyUiPreset(preset) {
+    document.body.setAttribute("data-ui-preset", "sand-blue");
+    localStorage.setItem("uiPreset", "sand-blue");
+}
+
+function wrapPageContent() {
+    if (document.body.classList.contains("home-page")) {
+        return;
+    }
+    if (document.querySelector("main.tool-shell")) {
+        return;
+    }
+
+    const shell = document.createElement("main");
+    shell.className = "tool-shell";
+    const children = Array.from(document.body.childNodes);
+    children.forEach((node) => {
+        shell.appendChild(node);
+    });
+    document.body.appendChild(shell);
 }
 
 async function apiFetch(url, options = {}) {
@@ -257,6 +369,9 @@ window.I18n = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+    applyUiPreset();
+    wrapPageContent();
+    createTopMenu();
     createLanguageToggle();
     applyTranslations();
 });

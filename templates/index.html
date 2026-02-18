@@ -7,19 +7,39 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="{{ url_for('static', filename='i18n.js') }}"></script>
 </head>
-<body>
-    <h1 data-i18n="home.h1">Witaj w moich aplikacjach!</h1>
-    <p data-i18n="home.subtitle">Wybierz aplikację, którą chcesz uruchomić:</p>
-    <button data-i18n="home.todo" onclick="window.location.href='/todo'">Lista zadań</button>
-    <br>
-    <button data-i18n="home.password" onclick="window.location.href='/password'">Generator haseł</button>
-    <br>
-    <button data-i18n="home.password_strength" onclick="window.location.href='/password-strength'">Ocena siły hasła</button>
-    <br>
-    <button data-i18n="home.pdf" onclick="window.location.href='/split-pdf'">Split/Merge PDF</button>
-    <br>
-    <button data-i18n="home.pdf_extract" onclick="window.location.href='/extract-pdf-text'">Wyciąganie tekstu z PDF</button>
-    <br>
-    <button data-i18n="home.text_diff" onclick="window.location.href='/text-diff'">Porównanie tekstów (A/B)</button>
+<body class="home-page">
+    <main id="homeViewRoot" class="home-root">
+        <section class="home-hero">
+            <h1 data-i18n="home.h1">Witaj w moich aplikacjach!</h1>
+            <p data-i18n="home.subtitle">Wybierz aplikację, którą chcesz uruchomić:</p>
+        </section>
+
+        <section class="tool-grid">
+            <a class="tool-card" data-tool="todo" href="/todo">
+                <h3 data-i18n="home.todo">Lista zadań</h3>
+                <p data-i18n="home.todo_desc">Prosty manager zadań z zapisem lokalnym.</p>
+            </a>
+            <a class="tool-card" data-tool="password" href="/password">
+                <h3 data-i18n="home.password">Generator haseł</h3>
+                <p data-i18n="home.password_desc">Generowanie losowych haseł z wybranymi regułami.</p>
+            </a>
+            <a class="tool-card" data-tool="password-strength" href="/password-strength">
+                <h3 data-i18n="home.password_strength">Ocena siły hasła</h3>
+                <p data-i18n="home.password_strength_desc">Ocena bezpieczeństwa hasła i scenariusze łamania.</p>
+            </a>
+            <a class="tool-card" data-tool="split-pdf" href="/split-pdf">
+                <h3 data-i18n="home.pdf">Podziel/Scal PDF</h3>
+                <p data-i18n="home.pdf_desc">Dzielenie PDF na strony oraz scalanie plików.</p>
+            </a>
+            <a class="tool-card" data-tool="extract-pdf" href="/extract-pdf-text">
+                <h3 data-i18n="home.pdf_extract">Wyciąganie tekstu z PDF</h3>
+                <p data-i18n="home.pdf_extract_desc">Ekstrakcja treści z PDF do tekstu lub JSON.</p>
+            </a>
+            <a class="tool-card" data-tool="text-compare" href="/text-diff">
+                <h3 data-i18n="home.text_diff">Porównanie tekstów (A/B)</h3>
+                <p data-i18n="home.text_diff_desc">Czytelne porównanie różnic między dwiema wersjami tekstu.</p>
+            </a>
+        </section>
+    </main>
 </body>
 </html>
