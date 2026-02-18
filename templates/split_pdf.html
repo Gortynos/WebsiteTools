@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="pdf.title">Split/Merge PDF</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='i18n.js') }}"></script>
+</head>
+<body>
+    <h1 data-i18n="pdf.split_h1">Podziel PDF</h1>
+
+    <form id="uploadForm">
+        <input type="file" id="fileInput" accept=".pdf">
+        <button type="submit" data-i18n="pdf.split_button">Wgraj i podziel</button>
+    </form>
+
+    <h3 data-i18n="pdf.split_files">Podzielone pliki:</h3>
+    <ul id="fileList"></ul>
+
+    <hr>
+
+    <h1 data-i18n="pdf.merge_h1">Scal PDF</h1>
+    <form id="mergeForm">
+        <input type="file" id="mergeFilesInput" accept=".pdf" multiple>
+        <button type="submit" data-i18n="pdf.merge_button">Wgraj i scal</button>
+    </form>
+
+    <h3 data-i18n="pdf.merged_file">Scalony plik:</h3>
+    <ul id="mergedFileList"></ul>
+
+    <button data-i18n="common.back" onclick="window.location.href='/'">Powrot</button>
+
+    <script>
+        document.getElementById("uploadForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById("fileInput").files[0];
+
+            if (!fileInput) {
+                alert(I18n.t("pdf.pick_file_alert"));
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", fileInput);
+
+            const response = await I18n.apiFetch("/api/split_pdf", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+            const fileList = document.getElementById("fileList");
+            fileList.innerHTML = "";
+
+            if (data.files) {
+                data.files.forEach(file => {
+                    const listItem = document.createElement("li");
+                    const link = document.createElement("a");
+                    link.href = file;
+                    link.innerText = file;
+                    link.target = "_blank";
+                    listItem.appendChild(link);
+                    fileList.appendChild(listItem);
+                });
+            } else {
+                fileList.innerHTML = `<li>${I18n.t("pdf.error_prefix")} ${data.error}</li>`;
+            }
+        });
+
+        document.getElementById("mergeForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const selectedFiles = document.getElementById("mergeFilesInput").files;
+            const mergedFileList = document.getElementById("mergedFileList");
+            mergedFileList.innerHTML = "";
+
+            if (!selectedFiles || selectedFiles.length < 2) {
+                alert(I18n.t("pdf.pick_two_files_alert"));
+                return;
+            }
+
+            const formData = new FormData();
+            for (const file of selectedFiles) {
+                formData.append("files", file);
+            }
+
+            const response = await I18n.apiFetch("/api/merge_pdf", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+            if (data.file) {
+                const listItem = document.createElement("li");
+                const link = document.createElement("a");
+                link.href = data.file;
+                link.innerText = data.file;
+                link.target = "_blank";
+                listItem.appendChild(link);
+                mergedFileList.appendChild(listItem);
+            } else {
+                mergedFileList.innerHTML = `<li>${I18n.t("pdf.error_prefix")} ${data.error}</li>`;
+            }
+        });
+
+    </script>
+</body>
+</html>

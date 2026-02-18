@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="pdf_extract.title">Wyciaganie tekstu z PDF</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='i18n.js') }}"></script>
+</head>
+<body>
+    <h1 data-i18n="pdf_extract.h1">Wyciagnij tekst z PDF</h1>
+    <form id="extractForm">
+        <input type="file" id="extractFileInput" accept=".pdf">
+        <label for="extractOutputFormat" data-i18n="pdf.output_format_label">Format wyjscia:</label>
+        <select id="extractOutputFormat">
+            <option value="text" data-i18n="pdf.output_text">Plain text</option>
+            <option value="json" data-i18n="pdf.output_json">JSON</option>
+        </select>
+        <button type="submit" data-i18n="pdf.extract_button">Wgraj i wyciagnij tekst</button>
+    </form>
+
+    <h3 data-i18n="pdf.extract_result">Wynik ekstrakcji:</h3>
+    <textarea id="extractResult" rows="14" style="width: 90%; max-width: 900px;"></textarea>
+
+    <button data-i18n="common.back" onclick="window.location.href='/'">Powrot</button>
+
+    <script>
+        document.getElementById("extractForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById("extractFileInput").files[0];
+            const outputFormat = document.getElementById("extractOutputFormat").value;
+            const resultArea = document.getElementById("extractResult");
+
+            if (!fileInput) {
+                alert(I18n.t("pdf.pick_extract_file_alert"));
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", fileInput);
+            formData.append("output_format", outputFormat);
+
+            const response = await I18n.apiFetch("/api/extract_pdf_text", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                resultArea.value = `${I18n.t("pdf.error_prefix")} ${data.error || "Unknown error"}`;
+                return;
+            }
+
+            if (data.format === "json") {
+                resultArea.value = JSON.stringify(data.pages || [], null, 2);
+            } else {
+                resultArea.value = data.text || "";
+            }
+        });
+    </script>
+</body>
+</html>

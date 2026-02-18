@@ -1,16 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Python Apps</title>
+    <title data-i18n="home.title">Moje narzędzia</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='i18n.js') }}"></script>
 </head>
 <body>
-    <h1>Witaj w moich aplikacjach!</h1>
-    <p>Wybierz aplikację, którą chcesz uruchomić:</p>
-    <button onclick="window.location.href='/todo'">To-Do List</button>
+    <h1 data-i18n="home.h1">Witaj w moich aplikacjach!</h1>
+    <p data-i18n="home.subtitle">Wybierz aplikację, którą chcesz uruchomić:</p>
+    <button data-i18n="home.todo" onclick="window.location.href='/todo'">Lista zadań</button>
     <br>
-    <button onclick="window.location.href='/password'">Password Generator</button>
+    <button data-i18n="home.password" onclick="window.location.href='/password'">Generator haseł</button>
+    <br>
+    <button data-i18n="home.password_strength" onclick="window.location.href='/password-strength'">Ocena siły hasła</button>
+    <br>
+    <button data-i18n="home.pdf" onclick="window.location.href='/split-pdf'">Split/Merge PDF</button>
+    <br>
+    <button data-i18n="home.pdf_extract" onclick="window.location.href='/extract-pdf-text'">Wyciąganie tekstu z PDF</button>
 </body>
 </html>
