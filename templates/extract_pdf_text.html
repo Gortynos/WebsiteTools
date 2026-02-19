@@ -22,7 +22,7 @@
     <h3 data-i18n="pdf.extract_result">Wynik ekstrakcji:</h3>
     <textarea id="extractResult" rows="14" style="width: 90%; max-width: 900px;"></textarea>
 
-    <button data-i18n="common.back" onclick="window.location.href='/'">Powrot</button>
+    <button data-i18n="common.back" onclick="window.location.href='{{ url_for('pages.home') }}'">Powrot</button>
 
     <script>
         document.getElementById("extractForm").addEventListener("submit", async function(event) {
@@ -40,7 +40,7 @@
             formData.append("file", fileInput);
             formData.append("output_format", outputFormat);
 
-            const response = await I18n.apiFetch("/api/extract_pdf_text", {
+            const response = await I18n.apiFetch("api/extract_pdf_text", {
                 method: "POST",
                 body: formData
             });

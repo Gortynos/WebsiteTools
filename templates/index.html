@@ -15,27 +15,27 @@
         </section>
 
         <section class="tool-grid">
-            <a class="tool-card" data-tool="todo" href="/todo">
+            <a class="tool-card" data-tool="todo" href="{{ url_for('pages.todo_page') }}">
                 <h3 data-i18n="home.todo">Lista zadań</h3>
                 <p data-i18n="home.todo_desc">Prosty manager zadań z zapisem lokalnym.</p>
             </a>
-            <a class="tool-card" data-tool="password" href="/password">
+            <a class="tool-card" data-tool="password" href="{{ url_for('pages.password_page') }}">
                 <h3 data-i18n="home.password">Generator haseł</h3>
                 <p data-i18n="home.password_desc">Generowanie losowych haseł z wybranymi regułami.</p>
             </a>
-            <a class="tool-card" data-tool="password-strength" href="/password-strength">
+            <a class="tool-card" data-tool="password-strength" href="{{ url_for('pages.password_strength_page') }}">
                 <h3 data-i18n="home.password_strength">Ocena siły hasła</h3>
                 <p data-i18n="home.password_strength_desc">Ocena bezpieczeństwa hasła i scenariusze łamania.</p>
             </a>
-            <a class="tool-card" data-tool="split-pdf" href="/split-pdf">
+            <a class="tool-card" data-tool="split-pdf" href="{{ url_for('pages.split_pdf_page') }}">
                 <h3 data-i18n="home.pdf">Podziel/Scal PDF</h3>
                 <p data-i18n="home.pdf_desc">Dzielenie PDF na strony oraz scalanie plików.</p>
             </a>
-            <a class="tool-card" data-tool="extract-pdf" href="/extract-pdf-text">
+            <a class="tool-card" data-tool="extract-pdf" href="{{ url_for('pages.extract_pdf_text_page') }}">
                 <h3 data-i18n="home.pdf_extract">Wyciąganie tekstu z PDF</h3>
                 <p data-i18n="home.pdf_extract_desc">Ekstrakcja treści z PDF do tekstu lub JSON.</p>
             </a>
-            <a class="tool-card" data-tool="text-compare" href="/text-diff">
+            <a class="tool-card" data-tool="text-compare" href="{{ url_for('pages.text_diff_page') }}">
                 <h3 data-i18n="home.text_diff">Porównanie tekstów (A/B)</h3>
                 <p data-i18n="home.text_diff_desc">Czytelne porównanie różnic między dwiema wersjami tekstu.</p>
             </a>

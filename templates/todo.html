@@ -15,11 +15,11 @@
 
     <ul id="taskList"></ul>
 
-    <button data-i18n="common.back" onclick="window.location.href='/'">Powrot</button>
+    <button data-i18n="common.back" onclick="window.location.href='{{ url_for('pages.home') }}'">Powrot</button>
 
     <script>
         async function loadTasks() {
-            const response = await I18n.apiFetch("/api/tasks");
+            const response = await I18n.apiFetch("api/tasks");
             const data = await response.json();
             const taskList = document.getElementById("taskList");
             taskList.innerHTML = "";
@@ -42,7 +42,7 @@
             const input = document.getElementById("taskInput").value;
             if (!input) return alert(I18n.t("todo.empty_alert"));
 
-            await I18n.apiFetch("/api/tasks", {
+            await I18n.apiFetch("api/tasks", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ description: input })
@@ -53,12 +53,12 @@
         }
 
         async function deleteTask(taskId) {
-            await I18n.apiFetch(`/api/tasks/${taskId}`, { method: "DELETE" });
+            await I18n.apiFetch(`api/tasks/${taskId}`, { method: "DELETE" });
             loadTasks();
         }
 
         async function toggleTask(taskId) {
-            await I18n.apiFetch(`/api/tasks/${taskId}`, { method: "PUT" });
+            await I18n.apiFetch(`api/tasks/${taskId}`, { method: "PUT" });
             loadTasks();
         }
 

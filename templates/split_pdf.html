@@ -29,7 +29,7 @@
     <h3 data-i18n="pdf.merged_file">Scalony plik:</h3>
     <ul id="mergedFileList"></ul>
 
-    <button data-i18n="common.back" onclick="window.location.href='/'">Powrot</button>
+    <button data-i18n="common.back" onclick="window.location.href='{{ url_for('pages.home') }}'">Powrot</button>
 
     <script>
         document.getElementById("uploadForm").addEventListener("submit", async function(event) {
@@ -44,7 +44,7 @@
             const formData = new FormData();
             formData.append("file", fileInput);
 
-            const response = await I18n.apiFetch("/api/split_pdf", {
+            const response = await I18n.apiFetch("api/split_pdf", {
                 method: "POST",
                 body: formData
             });
@@ -84,7 +84,7 @@
                 formData.append("files", file);
             }
 
-            const response = await I18n.apiFetch("/api/merge_pdf", {
+            const response = await I18n.apiFetch("api/merge_pdf", {
                 method: "POST",
                 body: formData
             });

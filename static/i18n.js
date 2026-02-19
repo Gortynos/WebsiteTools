@@ -231,6 +231,36 @@ function t(key) {
     return (TRANSLATIONS[lang] && TRANSLATIONS[lang][key]) || key;
 }
 
+const PAGE_PATHS = [
+    "todo",
+    "password",
+    "password-strength",
+    "split-pdf",
+    "extract-pdf-text",
+    "text-diff",
+];
+
+function getAppBasePath() {
+    const parts = window.location.pathname.split("/").filter(Boolean);
+    if (parts.length === 0) {
+        return "";
+    }
+    const last = parts[parts.length - 1];
+    if (PAGE_PATHS.includes(last)) {
+        return `/${parts.slice(0, -1).join("/")}`;
+    }
+    return `/${parts.join("/")}`;
+}
+
+function buildAppUrl(path = "") {
+    const base = getAppBasePath();
+    const cleanPath = String(path || "").replace(/^\/+|\/+$/g, "");
+    if (!cleanPath) {
+        return `${base || ""}/`;
+    }
+    return `${base || ""}/${cleanPath}`;
+}
+
 function applyTranslations() {
     const lang = getCurrentLanguage();
     document.documentElement.lang = lang;
@@ -293,29 +323,29 @@ function createTopMenu() {
 
     const brand = document.createElement("a");
     brand.className = "top-menu-brand";
-    brand.href = "/";
+    brand.href = buildAppUrl();
     brand.textContent = "WebsiteTools";
     nav.appendChild(brand);
 
     const links = document.createElement("div");
     links.className = "top-menu-links";
     const items = [
-        { href: "/", key: "menu.home" },
-        { href: "/todo", key: "menu.todo" },
-        { href: "/password", key: "menu.password" },
-        { href: "/password-strength", key: "menu.password_strength" },
-        { href: "/split-pdf", key: "menu.pdf" },
-        { href: "/extract-pdf-text", key: "menu.pdf_extract" },
-        { href: "/text-diff", key: "menu.text_diff" },
+        { href: "", key: "menu.home" },
+        { href: "todo", key: "menu.todo" },
+        { href: "password", key: "menu.password" },
+        { href: "password-strength", key: "menu.password_strength" },
+        { href: "split-pdf", key: "menu.pdf" },
+        { href: "extract-pdf-text", key: "menu.pdf_extract" },
+        { href: "text-diff", key: "menu.text_diff" },
     ];
 
     const currentPath = window.location.pathname.replace(/\/$/, "") || "/";
     items.forEach((item) => {
         const link = document.createElement("a");
-        link.href = item.href;
+        link.href = buildAppUrl(item.href);
         link.setAttribute("data-i18n", item.key);
         link.textContent = t(item.key);
-        const normalized = item.href.replace(/\/$/, "") || "/";
+        const normalized = new URL(link.href, window.location.origin).pathname.replace(/\/$/, "") || "/";
         if (normalized === currentPath) {
             link.classList.add("active");
         }
@@ -356,7 +386,8 @@ function wrapPageContent() {
 async function apiFetch(url, options = {}) {
     const headers = new Headers(options.headers || {});
     headers.set("X-Language", getCurrentLanguage());
-    return fetch(url, { ...options, headers });
+    const finalUrl = /^https?:\/\//i.test(url) ? url : buildAppUrl(url);
+    return fetch(finalUrl, { ...options, headers });
 }
 
 window.I18n = {

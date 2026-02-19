@@ -47,7 +47,7 @@
     <h3 data-i18n="text_diff.diff_title">Różnice</h3>
     <div id="diffResult" class="diff-result">-</div>
 
-    <button data-i18n="common.back" onclick="window.location.href='/'">Powrót</button>
+    <button data-i18n="common.back" onclick="window.location.href='{{ url_for('pages.home') }}'">Powrót</button>
 
     <script>
         function groupDiffEntries(entries) {
@@ -117,7 +117,7 @@
             const pairGroups = document.getElementById("pairGroups").checked;
             const compareMode = document.getElementById("compareMode").value;
 
-            const response = await I18n.apiFetch("/api/text_diff", {
+            const response = await I18n.apiFetch("api/text_diff", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
